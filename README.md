@@ -1,16 +1,20 @@
 <div align="center">
 
-# telegram-api-mcp
+# @ekho/telegram-api-mcp
 
 **Ultimate MCP server for Telegram Bot API — 185 methods, full v10.2 coverage, rich messages, meta-mode, rate limiting, circuit breaker.**
 
-[![Stars](https://img.shields.io/github/stars/timoncool/telegram-api-mcp?style=flat-square)](https://github.com/timoncool/telegram-api-mcp/stargazers)
-[![npm](https://img.shields.io/npm/v/telegram-api-mcp?style=flat-square)](https://www.npmjs.com/package/telegram-api-mcp)
-[![License](https://img.shields.io/github/license/timoncool/telegram-api-mcp?style=flat-square)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/ekho/telegram-api-mcp?style=flat-square)](https://github.com/ekho/telegram-api-mcp/stargazers)
+[![npm](https://img.shields.io/npm/v/%40ekho%2Ftelegram-api-mcp?style=flat-square)](https://www.npmjs.com/package/@ekho/telegram-api-mcp)
+[![License](https://img.shields.io/github/license/ekho/telegram-api-mcp?style=flat-square)](LICENSE)
 [![Bot API](https://img.shields.io/badge/Telegram%20Bot%20API-10.2-26A5E4?style=flat-square&logo=telegram)](https://core.telegram.org/bots/api)
 [![TRAIL](https://img.shields.io/badge/TRAIL-v2.1-6366f1?style=flat-square)](https://github.com/timoncool/trail-spec)
 
 </div>
+
+This is [Ekho's fork](https://github.com/ekho/telegram-api-mcp) of [timoncool/telegram-api-mcp](https://github.com/timoncool/telegram-api-mcp), with npm packaging and GitHub Actions publishing for `@ekho/telegram-api-mcp`. The CLI executable remains `telegram-api-mcp`. Original author credit and the MIT license are preserved.
+
+Maintainers: see [Publishing to npm](docs/PUBLISHING.md) for the initial package setup and release workflow. The npm examples below require that initial publication; use [From source](#from-source) if the scoped package is not available yet.
 
 185/185 Bot API methods with Zod validation, token masking, tool annotations, and zero bloat (2 dependencies).
 
@@ -34,19 +38,31 @@
 
 ## Quick Start
 
+The examples use `pnpx`, provided by [pnpm](https://pnpm.io/installation), with `--silent` to suppress package-manager output. Pass the bot token through the environment.
+
+### Terminal
+
+```bash
+TELEGRAM_BOT_TOKEN=your_token_from_botfather pnpx --silent @ekho/telegram-api-mcp
+```
+
+The server uses MCP over stdio and waits for a client connection. It does not present an interactive terminal prompt.
+
 ### Claude Code
 
 ```bash
-claude mcp add telegram -- npx telegram-api-mcp -e TELEGRAM_BOT_TOKEN=your_token
+claude mcp add --env TELEGRAM_BOT_TOKEN=your_token \
+  --transport stdio telegram -- pnpx --silent @ekho/telegram-api-mcp
 ```
 
 With meta-mode (recommended for large conversations):
 
 ```bash
-claude mcp add telegram -- npx telegram-api-mcp \
-  -e TELEGRAM_BOT_TOKEN=your_token \
-  -e TELEGRAM_META_MODE=true
+claude mcp add --env TELEGRAM_BOT_TOKEN=your_token TELEGRAM_META_MODE=true \
+  --transport stdio telegram -- pnpx --silent @ekho/telegram-api-mcp
 ```
+
+Keep Claude Code's environment options before `--`; the command after it starts the server. See the [Claude Code MCP documentation](https://code.claude.com/docs/en/mcp#option-3-add-a-local-stdio-server).
 
 ### Claude Desktop
 
@@ -56,8 +72,8 @@ Add to `claude_desktop_config.json`:
 {
   "mcpServers": {
     "telegram": {
-      "command": "npx",
-      "args": ["telegram-api-mcp"],
+      "command": "pnpx",
+      "args": ["--silent", "@ekho/telegram-api-mcp"],
       "env": {
         "TELEGRAM_BOT_TOKEN": "your_token_from_botfather"
       }
@@ -72,8 +88,8 @@ Add to `claude_desktop_config.json`:
 {
   "mcpServers": {
     "telegram": {
-      "command": "npx",
-      "args": ["telegram-api-mcp"],
+      "command": "pnpx",
+      "args": ["--silent", "@ekho/telegram-api-mcp"],
       "env": {
         "TELEGRAM_BOT_TOKEN": "your_token",
         "TELEGRAM_DEFAULT_CHAT_ID": "-1001234567890"
@@ -86,9 +102,9 @@ Add to `claude_desktop_config.json`:
 ### From source
 
 ```bash
-git clone https://github.com/timoncool/telegram-api-mcp.git
+git clone https://github.com/ekho/telegram-api-mcp.git
 cd telegram-api-mcp
-npm install && npm run build
+npm ci
 TELEGRAM_BOT_TOKEN=your_token node dist/index.js
 ```
 
@@ -267,6 +283,8 @@ npm run docs:refresh  # Re-download the official Bot API docs into docs/
 npm run audit         # Diff the registry against the docs mirror
 ```
 
+For release checks and npm Trusted Publishing setup, see [Publishing to npm](docs/PUBLISHING.md).
+
 ## Other Projects by [@timoncool](https://github.com/timoncool)
 
 | Project | Description |
@@ -278,9 +296,9 @@ npm run audit         # Diff the registry against the docs mirror
 | [tg-challenge-bot](https://github.com/timoncool/tg-challenge-bot) | AI anti-spam bot for Telegram |
 | [Bulka](https://github.com/timoncool/Bulka) | Live-coding music platform |
 
-## Support the Author
+## Support the Original Author
 
-I build open-source software and do AI research. Most of what I create is free and available to everyone. Your donations help me keep creating without worrying about where the next meal comes from =)
+The following donation links and addresses support the original author, [@timoncool](https://github.com/timoncool), and their open-source software and AI research.
 
 **[All donation methods](https://github.com/timoncool/ACE-Step-Studio/blob/master/DONATE.md)** | **[dalink.to/nerual_dreming](https://dalink.to/nerual_dreming)** | **[boosty.to/neuro_art](https://boosty.to/neuro_art)**
 
@@ -289,7 +307,7 @@ I build open-source software and do AI research. Most of what I create is free a
 - **USDT (TRC20):** `TQST9Lp2TjK6FiVkn4fwfGUee7NmkxEE7C`
 
 
-## Star History
+## Upstream Star History
 
 <a href="https://github.com/timoncool/telegram-api-mcp/stargazers">
  <picture>
@@ -301,4 +319,4 @@ I build open-source software and do AI research. Most of what I create is free a
 
 ## License
 
-MIT
+[MIT](LICENSE). Original project by [@timoncool](https://github.com/timoncool); this fork is maintained by [@ekho](https://github.com/ekho).

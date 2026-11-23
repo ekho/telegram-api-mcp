@@ -1,0 +1,135 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  # Manual runs exercise all checks without publishing a version.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: >-
+      github.repository == 'ekho/telegram-api-mcp' &&
+      (github.event_name == 'workflow_dispatch' || !github.event.release.prerelease)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      artifact-id: ${{ steps.package-upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Use a compatible npm publishing client
+        run: npm install --global npm@11.21.3 --ignore-scripts --no-audit --no-fund
+
+      - name: Validate package identity and release tag
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+          const server = JSON.parse(readFileSync('server.json', 'utf8'));
+          assert.equal(pkg.name, '@ekho/telegram-api-mcp');
+          assert.match(pkg.version, /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
+          assert.equal(pkg.publishConfig.access, 'public');
+          assert.equal(pkg.publishConfig.registry, 'https://registry.npmjs.org');
+          const repository = pkg.repository.url.replace(/^git\+/, '').replace(/\.git$/, '');
+          assert.equal(repository, `https://github.com/${process.env.REPOSITORY}`);
+          assert.equal(lock.name, pkg.name);
+          assert.equal(lock.version, pkg.version);
+          assert.equal(lock.packages[''].name, pkg.name);
+          assert.equal(lock.packages[''].version, pkg.version);
+          assert.equal(server.version, pkg.version);
+          assert.equal(server.packages[0].name, pkg.name);
+          assert.equal(server.packages[0].version, pkg.version);
+          if (process.env.EVENT_NAME === 'release') {
+            assert.equal(process.env.RELEASE_TAG, `v${pkg.version}`, 'Release tag must match package.json');
+          }
+          console.log(`Validated ${pkg.name}@${pkg.version} for ${process.env.EVENT_NAME}`);
+          NODE
+
+      - name: Install locked dependencies and compile
+        run: npm ci
+
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Pack and verify the exact archive to publish
+        run: |
+          mkdir -p "$RUNNER_TEMP/npm-package"
+          npm pack --pack-destination "$RUNNER_TEMP/npm-package"
+          archives=("$RUNNER_TEMP"/npm-package/*.tgz)
+          test "${#archives[@]}" -eq 1
+          npm run smoke:package -- "${archives[0]}"
+
+      - name: Preserve the verified package
+        id: package-upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: npm-package-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/npm-package/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+      - name: Report validation-only run
+        if: github.event_name == 'workflow_dispatch'
+        run: echo 'All release checks passed. Manual runs do not publish to npm.'
+
+  publish:
+    needs: validate
+    if: >-
+      github.repository == 'ekho/telegram-api-mcp' &&
+      github.event_name == 'release' && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # No checkout, dependency install, lifecycle scripts, or MCP execution in
+      # this job: only the already-tested archive receives publication rights.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Use a compatible npm publishing client
+        run: npm install --global npm@11.21.3 --ignore-scripts --no-audit --no-fund
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.validate.outputs.artifact-id }}
+          path: ${{ runner.temp }}/npm-package
+          merge-multiple: true
+          digest-mismatch: error
+
+      - name: Publish with npm Trusted Publishing
+        run: |
+          archives=("$RUNNER_TEMP"/npm-package/*.tgz)
+          test "${#archives[@]}" -eq 1
+          npm publish "${archives[0]}" --access public --tag latest --ignore-scripts

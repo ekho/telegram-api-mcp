@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   chart:
+    if: github.repository == 'timoncool/telegram-api-mcp'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

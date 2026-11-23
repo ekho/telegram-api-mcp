@@ -13,12 +13,12 @@ startCommand:
         description: Default chat ID for all tools (optional)
       metaMode:
         type: boolean
-        description: Use 2-tool meta mode instead of 169 tools (saves ~99% context tokens)
+        description: Use 2-tool meta mode instead of 185 tools (saves ~99% context tokens)
         default: false
   commandFunction: |-
     (config) => ({
       command: 'npx',
-      args: ['-y', 'telegram-api-mcp'],
+      args: ['-y', '@ekho/telegram-api-mcp'],
       env: {
         TELEGRAM_BOT_TOKEN: config.telegramBotToken,
         ...(config.defaultChatId ? { TELEGRAM_DEFAULT_CHAT_ID: config.defaultChatId } : {}),

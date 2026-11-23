@@ -1,6 +1,6 @@
 {
-  "name": "telegram-api-mcp",
-  "version": "0.2.0",
+  "name": "@ekho/telegram-api-mcp",
+  "version": "0.2.1",
   "description": "Ultimate Telegram Bot API v10.2 MCP Server — 185 methods incl. rich messages, meta-mode, rate limiting, circuit breaker",
   "type": "module",
   "main": "dist/index.js",
@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "test": "vitest run",
@@ -17,6 +18,7 @@
     "docs:refresh": "node scripts/refresh-docs.mjs",
     "audit": "npm run build && node scripts/audit-registry.mjs",
     "typecheck": "tsc --noEmit",
+    "smoke:package": "node scripts/smoke-package.mjs",
     "lint": "eslint src/",
     "prepublishOnly": "npm run build"
   },
@@ -40,7 +42,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/timoncool/telegram-api-mcp.git"
+    "url": "git+https://github.com/ekho/telegram-api-mcp.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "engines": {
     "node": ">=18.0.0"
