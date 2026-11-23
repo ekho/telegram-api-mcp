@@ -41,11 +41,15 @@
 - [x] Add stable release/version and repository checks, OIDC, and a validation-only manual trigger.
 - [x] Correct CI branch and verify YAML and release conditions.
 - [x] Review the complete diff independently and address material findings.
-- [ ] Commit to the fork, enable Actions, and observe CI.
+- [x] Commit to the fork, enable Actions, and observe CI.
 - [ ] Complete or hand off authenticated npm bootstrap and Trusted Publisher settings.
 
 ## Verification and decisions
 
+- Remote [CI run 45138279792](https://github.com/ekho/telegram-api-mcp/actions/runs/45138279792)
+  passed all six OS/Node jobs at commit `30d1e196c3a680e88c0d4bd0c50f0cae861a33f2`.
+- The validation-only [manual publish workflow run 45138470793](https://github.com/ekho/telegram-api-mcp/actions/runs/45138470793)
+  also passed; it did not publish an npm version.
 - Upstream baseline: 58 Vitest tests passed.
 - The smoke test rejected an archive with no compiled CLI; after adding `prepare`,
   the installed archive completed MCP initialize/tools/list (190 tools).

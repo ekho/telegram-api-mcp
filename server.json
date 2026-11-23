@@ -6,12 +6,12 @@
     "type": "git",
     "url": "https://github.com/ekho/telegram-api-mcp.git"
   },
-  "version": "0.2.1",
+  "version": "0.2.2",
   "packages": [
     {
       "name": "@ekho/telegram-api-mcp",
       "type": "npm",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "transport": "stdio"
     }
   ]

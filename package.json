@@ -1,6 +1,6 @@
 {
   "name": "@ekho/telegram-api-mcp",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Ultimate Telegram Bot API v10.2 MCP Server — 185 methods incl. rich messages, meta-mode, rate limiting, circuit breaker",
   "type": "module",
   "main": "dist/index.js",
