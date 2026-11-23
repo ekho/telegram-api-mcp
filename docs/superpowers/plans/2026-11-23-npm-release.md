@@ -42,7 +42,7 @@
 - [x] Correct CI branch and verify YAML and release conditions.
 - [x] Review the complete diff independently and address material findings.
 - [x] Commit to the fork, enable Actions, and observe CI.
-- [ ] Complete or hand off authenticated npm bootstrap and Trusted Publisher settings.
+- [x] Complete authenticated npm bootstrap and Trusted Publisher settings.
 
 ## Verification and decisions
 
@@ -50,6 +50,14 @@
   passed all six OS/Node jobs at commit `30d1e196c3a680e88c0d4bd0c50f0cae861a33f2`.
 - The validation-only [manual publish workflow run 45138470793](https://github.com/ekho/telegram-api-mcp/actions/runs/45138470793)
   also passed; it did not publish an npm version.
+- Authenticated npm account `ekho` manually published the tested bootstrap archive
+  as public [@ekho/telegram-api-mcp@0.2.1](https://www.npmjs.com/package/@ekho/telegram-api-mcp/v/0.2.1).
+- npm Trusted Publisher is configured for `ekho/telegram-api-mcp`, workflow
+  `publish.yml`, no environment, with direct npm publishing allowed.
+- Actual [release v0.2.2](https://github.com/ekho/telegram-api-mcp/releases/tag/v0.2.2)
+  at commit `6a47f07f378b81121e6c11eba682b0541a2dda70` completed both `validate`
+  and `publish` successfully via OIDC in [run 45140379678](https://github.com/ekho/telegram-api-mcp/actions/runs/45140379678),
+  confirming the Trusted Publisher configuration.
 - Upstream baseline: 58 Vitest tests passed.
 - The smoke test rejected an archive with no compiled CLI; after adding `prepare`,
   the installed archive completed MCP initialize/tools/list (190 tools).
@@ -60,5 +68,6 @@
   manual validation. Fixed by splitting read-only validation from release-only
   publication and passing the tested archive by artifact ID. The permission check
   failed before this change and passed afterward.
-- npm bootstrap and Trusted Publisher configuration require the user's authenticated
-  npm account. No npm token or Telegram credential has been stored.
+- Bootstrap and Trusted Publisher configuration used the authenticated npm account;
+  automated releases use OIDC. No npm token or Telegram credential is stored in the
+  repository or GitHub Actions secrets for this release workflow.

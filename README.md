@@ -14,7 +14,7 @@
 
 This is [Ekho's fork](https://github.com/ekho/telegram-api-mcp) of [timoncool/telegram-api-mcp](https://github.com/timoncool/telegram-api-mcp), with npm packaging and GitHub Actions publishing for `@ekho/telegram-api-mcp`. The CLI executable remains `telegram-api-mcp`. Original author credit and the MIT license are preserved.
 
-Maintainers: see [Publishing to npm](docs/PUBLISHING.md) for the initial package setup and release workflow. The npm examples below require that initial publication; use [From source](#from-source) if the scoped package is not available yet.
+The scoped package is available on [npm](https://www.npmjs.com/package/@ekho/telegram-api-mcp). Maintainers: see [Publishing to npm](docs/PUBLISHING.md#последующие-релизы) for subsequent releases through GitHub Actions.
 
 185/185 Bot API methods with Zod validation, token masking, tool annotations, and zero bloat (2 dependencies).
 

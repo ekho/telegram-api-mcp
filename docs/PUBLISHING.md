@@ -2,7 +2,9 @@
 
 Пакет этого форка — `@ekho/telegram-api-mcp`, репозиторий — [ekho/telegram-api-mcp](https://github.com/ekho/telegram-api-mcp). Имя исполняемой команды остаётся `telegram-api-mcp`. Исходный проект и автор: [timoncool/telegram-api-mcp](https://github.com/timoncool/telegram-api-mcp), лицензия MIT.
 
-[Workflow публикации](../.github/workflows/publish.yml) подготовлен для GitHub Actions и npm Trusted Publishing через OIDC. Само наличие workflow не создаёт пакет в npm: перед первой автоматической публикацией нужно войти в npm, создать пакет и настроить доверие. Эти действия ещё не подразумеваются выполненными.
+[Настройка workflow](../.github/workflows/publish.yml) и npm Trusted Publishing через OIDC для этого форка **завершена**. Пакет создан ручной публикацией `0.2.1`, доверие к GitHub Actions настроено, а [релиз v0.2.2](https://github.com/ekho/telegram-api-mcp/releases/tag/v0.2.2) успешно прошёл задания `validate` и `publish` в [запуске 45140379678](https://github.com/ekho/telegram-api-mcp/actions/runs/45140379678). Опубликованный архив собран из коммита `6a47f07f378b81121e6c11eba682b0541a2dda70`.
+
+Для следующего выпуска переходите к разделу [«Последующие релизы»](#последующие-релизы). Разделы о создании пакета и Trusted Publisher ниже сохранены как справка об уже выполненной одноразовой настройке.
 
 ## Как работает workflow
 
@@ -13,7 +15,7 @@
 | GitHub prerelease | Задание пропускается |
 | Запуск в репозитории, отличном от `ekho/telegram-api-mcp` | Задание пропускается |
 
-Один push коммита или тега публикацию не запускает: нужен опубликованный GitHub Release. Версия должна быть стабильной, например `0.2.2`, а тег — в точности `v0.2.2`.
+Один push коммита или тега публикацию не запускает: нужен опубликованный GitHub Release. Версия должна быть новой и стабильной, например `0.2.3`, а тег — в точности `v0.2.3`.
 
 Workflow использует GitHub-hosted runners, Node.js 24 и npm **11.21.3**. Задание `validate` имеет только право чтения репозитория. Перед публикацией оно:
 
@@ -29,47 +31,29 @@ Smoke-проверка использует фиктивный токен и н�
 
 Для OIDC в задании задано `id-token: write`. Секрет `NPM_TOKEN` и переменная `NODE_AUTH_TOKEN` для публикации не нужны. npm автоматически создаёт provenance для публичного пакета из публичного репозитория при публикации через GitHub Actions OIDC; см. [документацию npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers/).
 
-## Первый запуск: создать пакет в npm
+## Одноразовая настройка: создание пакета — выполнено
 
-Самый прямой путь — один раз опубликовать подготовленную версию **0.2.1** вручную, затем выпускать следующие версии через GitHub Actions. Настроить `npm trust` можно только для уже существующего пакета; нужны права на него и включённая двухфакторная аутентификация аккаунта. См. [требования npm trust](https://docs.npmjs.com/cli/v11/commands/npm-trust/#prerequisites).
+Первоначальная версия [**0.2.1**](https://www.npmjs.com/package/@ekho/telegram-api-mcp/v/0.2.1) опубликована вручную после подтверждённого входа в npm под аккаунтом `ekho`. Это создало пакет, к которому затем был привязан Trusted Publisher. Повторять первоначальную публикацию не нужно: версии `0.2.1` и `0.2.2` уже использованы.
 
-В локальном checkout подготовленного форка используйте Node.js 24 и npm 11.21.3. Сначала проверьте пакет:
+Перед первоначальной публикацией были выполнены `npm ci`, `npm run typecheck`, `npm test`, `npm pack` и `npm run smoke:package` для подготовленного архива. В npm отправлен проверенный архив с публичным доступом. Последующие выпуски выполняет workflow по процедуре [ниже](#последующие-релизы).
 
-```bash
-npm ci
-npm run typecheck
-npm test
-npm pack
-npm run smoke:package -- ./ekho-telegram-api-mcp-0.2.1.tgz
-```
+Справочно: настройка `npm trust` требует уже существующего пакета, прав на него и включённой двухфакторной аутентификации аккаунта. См. [требования npm trust](https://docs.npmjs.com/cli/v11/commands/npm-trust/#prerequisites).
 
-Затем войдите в npm под аккаунтом с правом публикации в scope `@ekho`, пройдите интерактивную проверку и опубликуйте проверенный архив:
+## Одноразовая настройка: Trusted Publisher — выполнено
 
-```bash
-npm login --auth-type=web
-npm whoami
-npm publish ./ekho-telegram-api-mcp-0.2.1.tgz --access public
-```
-
-Если версия в checkout уже другая, используйте имя архива, которое вывел `npm pack`. Не публикуйте повторно существующую версию.
-
-После ручной публикации `0.2.1` следующий автоматический релиз должен иметь **новую версию**, например `0.2.2`. GitHub Release `v0.2.1` после ручной публикации запустит попытку повторной публикации и завершится ошибкой npm.
-
-## Настроить npm Trusted Publisher
-
-После создания пакета откройте его **Settings → Trusted publishing** на npmjs.com, выберите GitHub Actions и задайте:
+В **Settings → Trusted publishing** пакета на npmjs.com настроен GitHub Actions со следующими значениями. Работа доверия подтверждена успешной OIDC-публикацией `0.2.2` в [запуске 45140379678](https://github.com/ekho/telegram-api-mcp/actions/runs/45140379678).
 
 | Поле | Значение |
 | --- | --- |
 | Organization or user | `ekho` |
 | Repository | `telegram-api-mcp` |
 | Workflow filename | `publish.yml` |
-| Environment name | Оставить пустым |
-| Allow npm publish | Включить |
+| Environment name | Пустое |
+| Allow npm publish | Включено |
 
 Имя workflow указывается без `.github/workflows/`. Пустое окружение соответствует текущему workflow, в котором нет GitHub Environment. Право **Allow npm publish** нужно для прямой публикации; одного разрешения на staged publishing недостаточно. Точные поля описаны в [руководстве npm](https://docs.npmjs.com/trusted-publishers/#for-github-actions).
 
-Альтернатива веб-форме — после входа в npm выполнить:
+Справочный эквивалент настройки через CLI приведён ниже. Текущая конфигурация уже создана; повторно выполнять эту команду для неё не нужно:
 
 ```bash
 npm trust github @ekho/telegram-api-mcp \
@@ -78,13 +62,13 @@ npm trust github @ekho/telegram-api-mcp \
   --allow-publish
 ```
 
-Команда доступна начиная с npm 11.15.0; npm 11.21.3 подходит. Подтвердите запрос 2FA. Синтаксис приведён в [документации npm trust](https://docs.npmjs.com/cli/v11/commands/npm-trust/).
+Команда доступна начиная с npm 11.15.0; npm 11.21.3 подходит. Создание конфигурации требует подтверждения 2FA. Синтаксис приведён в [документации npm trust](https://docs.npmjs.com/cli/v11/commands/npm-trust/).
 
-Создавайте доверие, когда готовы выпустить следующую версию: новая конфигурация должна завершить **первую успешную публикацию в течение двух дней**. Иначе её нужно удалить и создать заново. Ручной запуск проверок через `workflow_dispatch` не публикует пакет и не подтверждает настройку OIDC. См. [срок действия новой конфигурации](https://docs.npmjs.com/trusted-publishers/#trusted-publisher-configuration-expiry).
+Для новой конфигурации первая успешная публикация должна завершиться **в течение двух дней**; это условие для текущего доверия уже выполнено релизом `0.2.2`. Если когда-либо потребуется пересоздать доверие, тот же срок будет действовать для новой конфигурации. Ручной запуск проверок через `workflow_dispatch` не публикует пакет и не подтверждает настройку OIDC. См. [срок действия новой конфигурации](https://docs.npmjs.com/trusted-publishers/#trusted-publisher-configuration-expiry).
 
 ## Последующие релизы
 
-1. Обновите версию в `package.json` и `package-lock.json`, например командой `npm version patch --no-git-tag-version`. Укажите эту же версию в обоих полях `version` файла `server.json`.
+1. Выберите ещё не опубликованную версию. Обновите её в `package.json` и `package-lock.json`, например командой `npm version patch --no-git-tag-version`. Укажите эту же версию в обоих полях `version` файла `server.json`.
 2. Закоммитьте и отправьте изменения в `ekho/telegram-api-mcp`.
 3. При необходимости запустите **Actions → Publish to npm → Run workflow** для проверки выбранной ветки. Этот запуск не публикует пакет.
 4. Создайте GitHub Release на нужном коммите с тегом `v<version>`. Снимите отметку prerelease и опубликуйте релиз.
